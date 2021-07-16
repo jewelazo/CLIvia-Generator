@@ -12,7 +12,7 @@ class TriviaGenerator
   include Requester
   # maybe we need to include a couple of modules?
 
-  def initialize
+  def initialize(_filename = "scores.json")
     @score = 0
     @score_data = []
     # we need to initialize a couple of properties here
