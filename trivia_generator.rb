@@ -2,6 +2,8 @@
 # do not forget to require_relative your local dependencies
 require_relative "./presenter"
 require_relative "./requester"
+require_relative "./services/opentdb"
+require "json"
 
 class TriviaGenerator
   include Presenter
@@ -9,6 +11,7 @@ class TriviaGenerator
   # maybe we need to include a couple of modules?
 
   def initialize
+    @score = 0
     # we need to initialize a couple of properties here
   end
 
@@ -16,6 +19,7 @@ class TriviaGenerator
     print_welcome
     action = select_main_menu_action
     p action
+    p parse_questions
     # welcome message
     # prompt the user for an action
     # keep going until the user types exit
@@ -42,11 +46,13 @@ class TriviaGenerator
   end
 
   def load_questions
+    Opentdb.index
     # ask the api for a random set of questions
-    parse_questions
   end
 
   def parse_questions
+    load_response = load_questions
+    JSON.parse(load_response.body, symbolize_names: true)
     # questions came with an unexpected structure, clean them to make it usable for our purposes
   end
 
