@@ -1,10 +1,10 @@
 module Requester
   def select_main_menu_action
-    options = %w[random scores exit]
-    puts options.join(" | ")
+    menu = %w[random scores exit]
+    puts menu.join(" | ")
     print "> "
     input = gets.chomp.strip.downcase
-    until options.include?(input)
+    until menu.include?(input)
       puts "Invalid option"
       print "> "
       input = gets.chomp.strip.downcase
