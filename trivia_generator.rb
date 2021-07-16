@@ -1,6 +1,6 @@
 # do not forget to require your gem dependencies
 # do not forget to require_relative your local dependencies
-# rubocop:disable Metrics/AbcSize
+# rubocop:disable Style/GuardClause,Metrics/AbcSize
 require_relative "./presenter"
 require_relative "./requester"
 require_relative "./services/opentdb"
@@ -73,25 +73,25 @@ class TriviaGenerator
     # once the questions end, show user's score and promp to save it
   end
 
-  # def save(data)
-  #   puts "--------------------------------------------------"
-  #   print "Do you want to save your score? y/n "
-  #   save=gets.chomp.downcase
-  #   alt=%w[y n]
-  #   until alt.include?(save)
-  #     puts "Invalid option"
-  #     print "Do you want to save your score? y/n "
-  #     save=gets.chomp.downcase
-  #   end
-  #   if save!='n'
-  #     puts "Type the name to assign to the score"
-  #     print "> "
-  #     name=gets.chomp
-  #     name="Anonymous" unless name!=""
-  #     @score_data << {name:name,score:@score }
-  #   end
-  #   # write to file the scores data
-  # end
+  def save(_data)
+    puts "--------------------------------------------------"
+    print "Do you want to save your score? y/n "
+    save = gets.chomp.downcase
+    alt = %w[y n]
+    until alt.include?(save)
+      puts "Invalid option"
+      print "Do you want to save your score? y/n "
+      save = gets.chomp.downcase
+    end
+    if save != "n"
+      puts "Type the name to assign to the score"
+      print "> "
+      name = gets.chomp
+      name = "Anonymous" unless name != ""
+      @score_data << { name: name, score: @score }
+    end
+  end
+  # write to file the scores data
 
   def parse_scores
     # get the scores data from file
@@ -124,4 +124,4 @@ end
 
 trivia = TriviaGenerator.new
 trivia.start
-# rubocop:enable Metrics/AbcSize
+# rubocop:enable Style/GuardClause,Metrics/AbcSize
