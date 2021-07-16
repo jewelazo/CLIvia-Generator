@@ -1,6 +1,9 @@
 # do not forget to require your gem dependencies
 # do not forget to require_relative your local dependencies
-# rubocop:disable Style/GuardClause,Metrics/AbcSize
+# rubocop:disable Style/GuardClause,Metrics/AbcSize,Metrics/MethodLength,Lint/MissingCopEnableDirective
+file_name = ARGV.shift
+file_name = "scores.json" if file_name.nil?
+
 require_relative "./presenter"
 require_relative "./requester"
 require_relative "./services/opentdb"
@@ -12,7 +15,7 @@ class TriviaGenerator
   include Requester
   # maybe we need to include a couple of modules?
 
-  def initialize(filename = "scores.json")
+  def initialize(filename)
     @score = 0
     # @score_data = []
     @filename = filename
@@ -31,9 +34,9 @@ class TriviaGenerator
       print_welcome
       action = select_main_menu_action
     end
-    File.open("scores.json", "w") do |json|
-      json.write(@score_data.to_json)
-    end
+    # File.open("scores.json", "w") do |json|
+    #   json.write(@score_data.to_json)
+    # end
     print_exit
   end
 
@@ -51,11 +54,11 @@ class TriviaGenerator
       dic.each { |k, v| puts "#{k}. #{v}" }
       print "> "
       input = gets.chomp.to_i
-      # until (1..options_u.size)include?(input)
-      #   puts "invalid option"
-      #   print "> "
-      #   input=gets.chomp.to_i
-      # end
+      until (1..options_u.size).include?(input)
+        puts "invalid option"
+        print "> "
+        input = gets.chomp.to_i
+      end
       if dic[input].match?(/#{q[:correct_answer]}/)
         @score += 10
       else
@@ -91,6 +94,9 @@ class TriviaGenerator
       name = gets.chomp
       name = "Anonymous" unless name != ""
       @score_data << { name: name, score: @score }
+      File.open("scores.json", "w") do |json|
+        json.write(@score_data.to_json)
+      end
     end
   end
   # write to file the scores data
@@ -124,6 +130,6 @@ class TriviaGenerator
   # end
 end
 
-trivia = TriviaGenerator.new
+trivia = TriviaGenerator.new(file_name)
 trivia.start
-# rubocop:enable Style/GuardClause,Metrics/AbcSize
+# # rubocop:enable Style/GuardClause,Metrics/AbcSize,Metrics/MethodLength,Lint/MissingCopEnableDirective
