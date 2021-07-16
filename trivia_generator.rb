@@ -108,16 +108,16 @@ class TriviaGenerator
     # questions came with an unexpected structure, clean them to make it usable for our purposes
   end
 
-  # def print_scores
-  #   database=JSON.parse(File.read('scores.json'), symbolize_names:true)
-  #   table = Terminal::Table.new
-  #   table.title = "Top Scores"
-  #   table.headings = %w[Name Score]
-  #   table.rows = database.map do |row|
-  #     [row[:name], row[:score]]
-  #   end
-  #   puts table
-
+  def print_scores
+    database = JSON.parse(File.read("scores.json"), symbolize_names: true)
+    table = Terminal::Table.new
+    table.title = "Top Scores"
+    table.headings = %w[Name Score]
+    table.rows = database.map do |row|
+      [row[:name], row[:score]]
+    end
+    puts table
+  end
   #   # print the scores sorted from top to bottom
   # end
 end
