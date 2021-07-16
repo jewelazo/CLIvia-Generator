@@ -12,9 +12,11 @@ class TriviaGenerator
   include Requester
   # maybe we need to include a couple of modules?
 
-  def initialize(_filename = "scores.json")
+  def initialize(filename = "scores.json")
     @score = 0
-    @score_data = []
+    # @score_data = []
+    @filename = filename
+    @score_data = JSON.parse(File.read(@filename), symbolize_names: true)
     # we need to initialize a couple of properties here
   end
 
@@ -109,7 +111,7 @@ class TriviaGenerator
   end
 
   def print_scores
-    database = JSON.parse(File.read("scores.json"), symbolize_names: true)
+    database = @score_data
     table = Terminal::Table.new
     table.title = "Top Scores"
     table.headings = %w[Name Score]
