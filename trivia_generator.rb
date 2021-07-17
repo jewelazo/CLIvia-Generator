@@ -1,14 +1,15 @@
 # do not forget to require your gem dependencies
 # do not forget to require_relative your local dependencies
-# rubocop:disable Style/GuardClause,Metrics/AbcSize,Metrics/MethodLength,Lint/MissingCopEnableDirective
-file_name = ARGV.shift
-file_name = "scores.json" if file_name.nil?
-
+# rubocop:disable Style/GuardClause,Metrics/AbcSize,Metrics/MethodLength
 require_relative "./presenter"
 require_relative "./requester"
 require_relative "./services/opentdb"
 require "json"
 require "terminal-table"
+require "htmlentities"
+
+file_name = ARGV.shift
+file_name = "scores.json" if file_name.nil?
 
 class TriviaGenerator
   include Presenter
@@ -44,10 +45,11 @@ class TriviaGenerator
     questions = parse_questions[:results]
     questions.each do |q|
       puts "Category: #{q[:category]} | Difficulty: #{q[:difficulty]}"
-      puts "Question: #{q[:question]}"
+      puts "Question: #{HTMLEntities.new.decode q[:question]}"
       array = []
       array[0] = q[:correct_answer]
       options = array.concat(q[:incorrect_answers])
+      options = options.map { |str| HTMLEntities.new.decode(str) }
       n = (1..options.size)
       options_u = options.sort_by { rand }
       dic = n.zip(options_u).to_h
@@ -61,6 +63,7 @@ class TriviaGenerator
       end
       if dic[input].match?(/#{q[:correct_answer]}/)
         @score += 10
+        puts "Correct answer!!!"
       else
         puts "#{dic[input]}...Incorrect!"
         puts "The correct answer was: #{q[:correct_answer]}"
@@ -132,4 +135,4 @@ end
 
 trivia = TriviaGenerator.new(file_name)
 trivia.start
-# # rubocop:enable Style/GuardClause,Metrics/AbcSize,Metrics/MethodLength,Lint/MissingCopEnableDirective
+# rubocop:enable Style/GuardClause,Metrics/AbcSize,Metrics/MethodLength
