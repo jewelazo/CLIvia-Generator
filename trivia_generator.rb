@@ -117,7 +117,7 @@ class TriviaGenerator
   end
 
   def print_scores
-    database = @score_data
+    database = (@score_data.sort_by { |k| k[:score] }).reverse[0..4]
     table = Terminal::Table.new
     table.title = "Top Scores"
     table.headings = %w[Name Score]
