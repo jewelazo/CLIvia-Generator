@@ -1,28 +1,57 @@
 module Requester
   def select_main_menu_action
-    # prompt the user for the "random | scores | exit" actions
+    gets_option "> ", "invalid option", nil, %w[random scores exit], " | "
   end
 
-  def ask_question(question)
-    # show category and difficulty from question
-    # show the question
-    # show each one of the options
-    # grab user input
+  def ask_question(quest)
+    options = feature(quest)
+    n = ("1"..options.size.to_s)
+    options_u = options.sort_by { rand }
+    dic = n.zip(options_u).to_h
+    dic.each { |k, v| puts "#{k}. #{v}" }
+    input = gets_option("> ", "invalid option", nil, n, nil)
+    [input, dic]
   end
 
-  def will_save?(score)
-    # show user's score
-    # ask the user to save the score
-    # grab user input
-    # prompt the user to give the score a name if there is no name given, set it as Anonymous
+  def feature(quest)
+    puts "Category: #{quest[:category]} | Difficulty: #{quest[:difficulty]}"
+    puts "Question: #{HTMLEntities.new.decode quest[:question]}"
+    array = []
+    array[0] = quest[:correct_answer]
+    options = array.concat(quest[:incorrect_answers])
+    options.map { |str| HTMLEntities.new.decode(str) }
   end
 
-  def get_number(max: 100_000)
-    # prompt the user for a number between 1 and the maximum number of options
+  def will_save?
+    puts "Well done! Your score is #{@score}"
+    save = gets_option(nil, "invalid option", "Do you want to save your score? y/n ", %w[y n], nil)
+    return unless save != "n"
+
+    puts "Type the name to assign to the score"
+    print "> "
+    name = gets.chomp
+    name = "Anonymous" unless name != ""
+    @score_data << { name: name, score: @score }
+    File.open(@filename, "w") do |json|
+      json.write(@score_data.to_json)
+    end
   end
 
-  def gets_option(prompt, options)
-    # prompt for an input
-    # keep going until the user gives a valid option
+  def get_number(rango)
+    gets_option("> ", "invalid option", nil, rango, nil)
+  end
+
+  def gets_option(prompt, message1, message2, options, format)
+    puts options.join(format) unless format.nil?
+    print message2 unless message2.nil?
+    print prompt unless prompt.nil?
+    input = gets.chomp.strip.downcase
+    until options.include?(input)
+      puts message1
+      print message2 unless message2.nil?
+      print prompt
+      input = gets.chomp.strip.downcase
+    end
+    input
   end
 end

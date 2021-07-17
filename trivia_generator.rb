@@ -1,50 +1,76 @@
-# do not forget to require your gem dependencies
-# do not forget to require_relative your local dependencies
+require_relative "./presenter"
+require_relative "./requester"
+require_relative "./services/opentdb"
+require "json"
+require "terminal-table"
+require "htmlentities"
 
 class TriviaGenerator
-  # maybe we need to include a couple of modules?
-
-  def initialize
-    # we need to initialize a couple of properties here
+  include Presenter
+  include Requester
+  def initialize(filename = "scores.json")
+    @score = 0
+    @filename = filename
+    @score_data = JSON.parse(File.read(@filename), symbolize_names: true)
   end
 
   def start
-    # welcome message
-    # prompt the user for an action
-    # keep going until the user types exit
+    print_welcome
+    action = select_main_menu_action
+    until action == "exit"
+      case action
+      when "random" then random_trivia
+      when "scores" then print_scores
+      end
+      print_welcome
+      action = select_main_menu_action
+    end
+    print_exit
   end
 
   def random_trivia
-    # load the questions from the api
-    # questions are loaded, then let's ask them
+    questions = parse_questions[:results]
+    ask_questions(questions)
+    save
+    @score = 0
   end
 
-  def ask_questions
-    # ask each question
-    # if response is correct, put a correct message and increase score
-    # if response is incorrect, put an incorrect message, and which was the correct answer
-    # once the questions end, show user's score and promp to save it
+  def ask_questions(questions)
+    questions.each do |q|
+      input, dic = ask_question(q)
+      if dic[input].match?(/#{q[:correct_answer]}/)
+        @score += 10
+        puts "Correct answer!!!"
+      else
+        puts "#{dic[input]}...Incorrect!"
+        puts "The correct answer was: #{q[:correct_answer]}"
+      end
+    end
   end
 
-  def save(data)
-    # write to file the scores data
-  end
-
-  def parse_scores
-    # get the scores data from file
+  def save
+    puts "--------------------------------------------------"
+    will_save?
   end
 
   def load_questions
-    # ask the api for a random set of questions
-    parse_questions
+    Opentdb.index
   end
 
   def parse_questions
-    # questions came with an unexpected structure, clean them to make it usable for our purposes
+    load_response = load_questions
+    JSON.parse(load_response.body, symbolize_names: true)
   end
 
   def print_scores
-    # print the scores sorted from top to bottom
+    database = (@score_data.sort_by { |k| k[:score] }).reverse[0..4]
+    table = Terminal::Table.new
+    table.title = "Top Scores"
+    table.headings = %w[Name Score]
+    table.rows = database.map do |row|
+      [row[:name], row[:score]]
+    end
+    puts table
   end
 end
 
